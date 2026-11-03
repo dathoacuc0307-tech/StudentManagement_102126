@@ -1,0 +1,315 @@
+================================================================================
+                    BÁO CÁO BÀI TẬP THỰC HÀNH DEVOPS / GIT
+    CHỦ ĐỀ: QUẢN LÝ MÃ NGUỒN VÀ LÀM VIỆC NHÓM BẰNG GIT VÀ GITHUB
+================================================================================
+
+1. THÔNG TIN SINH VIÊN
+- Họ và tên: Nguyễn Duy Đạt
+- Email GitHub: dathoacuc0307@gmail.com
+- Mã sinh viên: 102126
+- Lớp: CNTT01
+- Khoa: Công nghệ thông tin
+- Hệ điều hành thực hành: Ubuntu WSL (Windows Subsystem for Linux)
+- Phiên bản Git: git version 2.53.0
+- Thư mục dự án: ~/StudentManagement_102126
+- Quy tắc định danh: Tất cả các file và branch bài tập đều gắn hậu tố "_102126"
+
+================================================================================
+PHẦN I: TOÀN BỘ CÁC CÂU LỆNH ĐÃ THỰC HIỆN TRÊN TERMINAL (UBUNTU WSL)
+================================================================================
+
+--- BƯỚC 1: KHỞI TẠO REPOSITORY & COMMIT ĐẦU TIÊN ---
+# 1. Cấu hình danh tính Git
+git config --global user.name "NguyenDuyDat _102126"
+git config --global user.email "dathoacuc0307@gmail.com"
+git config --global init.defaultBranch main
+
+# 2. Khởi tạo kho chứa tại thư mục cá nhân
+cd ~
+mkdir -p StudentManagement_102126 && cd StudentManagement_102126
+git init -b main
+
+# 3. Tạo các file dữ liệu khởi tạo kèm hậu tố _102126
+echo "# Student Management System - 102126" > README_102126.md
+echo "Version: 1.0" >> README_102126.md
+cp README_102126.md README.md
+
+echo "SV001 - Nguyen Van An" > students_102126.txt
+echo "MH001 - Lap trinh Python" > subjects_102126.txt
+
+cat << 'EOF' > .gitignore
+*.log
+*.tmp
+node_modules/
+bin/
+obj/
+.env
+EOF
+
+# 4. Đưa vào Staging Area và tạo Initial Commit
+git add .
+git commit -m "Initial commit: Create student management project 102126"
+
+# 5. Gắn nhãn phiên bản đầu tiên
+git tag -a v1.0 -m "First release v1.0 - 102126"
+
+
+--- BƯỚC 2: PHÁT TRIỂN CÁC NHÁNH FEATURE & HỢP NHẤT (MERGE) ---
+# 1. Phát triển nhánh Quản lý sinh viên
+git checkout -b feature/student-management_102126
+cat << 'EOF' >> students_102126.txt
+SV002 - Tran Van Binh
+SV003 - Le Thi Hoa
+EOF
+git add students_102126.txt
+git commit -m "Add student management data 102126"
+
+# 2. Phát triển nhánh Quản lý môn học
+git checkout main
+git checkout -b feature/subject-management_102126
+cat << 'EOF' >> subjects_102126.txt
+MH002 - Lap trinh Java
+MH003 - DevOps
+EOF
+git add subjects_102126.txt
+git commit -m "Add subject management data 102126"
+
+# 3. Phát triển nhánh Thống kê kết quả học tập (Developer C)
+git checkout main
+git checkout -b feature/result-statistics_102126
+echo "Thong ke ket qua hoc tap: Gioi 30%, Kha 50%, TB 20%" > statistics_102126.txt
+git add statistics_102126.txt
+git commit -m "Add result statistics feature 102126"
+
+# 4. Chuyển về nhánh main và hợp nhất lần lượt 3 nhánh
+git checkout main
+git merge feature/student-management_102126 --no-edit   # Kết quả: Fast-forward
+git merge feature/subject-management_102126 --no-edit   # Kết quả: 3-way merge ('ort' strategy)
+git merge feature/result-statistics_102126 --no-edit    # Kết quả: 3-way merge ('ort' strategy)
+
+
+--- BƯỚC 3: MÔ PHỎNG VÀ XỬ LÝ MERGE CONFLICT ---
+# 1. Nhánh xung đột của Developer A
+git checkout main
+git checkout -b conflict-developer-a_102126
+cat << 'EOF' > README_102126.md
+# Student Management System
+Version: 2.0 - Developer A (102126)
+EOF
+git add README_102126.md
+git commit -m "Update version by Developer A 102126"
+
+# 2. Nhánh xung đột của Developer B
+git checkout main
+git checkout -b conflict-developer-b_102126
+cat << 'EOF' > README_102126.md
+# Student Management System
+Version: 2.0 - Developer B (102126)
+EOF
+git add README_102126.md
+git commit -m "Update version by Developer B 102126"
+
+# 3. Tiến hành merge và giải quyết xung đột trên main
+git checkout main
+git merge conflict-developer-a_102126 --no-edit  # Thành công (Fast-forward)
+git merge conflict-developer-b_102126            # Xảy ra CONFLICT trong file README_102126.md
+
+# 4. Ghi đè nội dung giải quyết thống nhất giữa 2 Developer
+cat << 'EOF' > README_102126.md
+# Student Management System
+Version: 2.0 - Team Development (102126)
+EOF
+cp README_102126.md README.md
+git add README_102126.md README.md
+git commit -m "Resolve merge conflict in README_102126"
+
+
+--- BƯỚC 4: THỰC HÀNH GIT REVERT, GẮN TAG v2.0 & TẠO NHÁNH PULL REQUEST ---
+# 1. Thao tác an toàn với git revert (Mở rộng 5)
+echo "SV999 - Test Revert" >> students_102126.txt
+git add students_102126.txt
+git commit -m "Test commit for revert: add SV999"
+git revert HEAD --no-edit
+
+# 2. Đánh dấu Tag phát hành phiên bản 2.0
+git tag -a v2.0 -m "Release v2.0 after conflict resolution and features - 102126"
+
+# 3. Tạo nhánh feature/add-student-info_102126 chuẩn bị tạo Pull Request
+git checkout -b feature/add-student-info_102126
+cat << 'EOF' > student-info_102126.txt
+Ma sinh vien: 102126
+Ho ten: Nguyen Duy Dat
+Email: dathoacuc0307@gmail.com
+Lop: CNTT01
+Khoa: Cong nghe thong tin
+EOF
+git add student-info_102126.txt
+git commit -m "Add student information 102126"
+git checkout main
+
+
+================================================================================
+PHẦN II: TRÍCH XUẤT KẾT QUẢ THỰC TẾ TRÊN TERMINAL
+================================================================================
+
+1. BẰNG CHỨNG XUNG ĐỘT (MERGE CONFLICT) TẠI BƯỚC 3:
+Khi chạy `git merge conflict-developer-b_102126`, Git thông báo:
+--------------------------------------------------------------------------------
+Auto-merging README_102126.md
+CONFLICT (content): Merge conflict in README_102126.md
+Automatic merge failed; fix conflicts and then commit the result.
+--------------------------------------------------------------------------------
+Nội dung file README_102126.md ghi nhận các marker xung đột:
+--------------------------------------------------------------------------------
+# Student Management System
+<<<<<<< HEAD
+Version: 2.0 - Developer A (102126)
+=======
+Version: 2.0 - Developer B (102126)
+>>>>>>> conflict-developer-b_102126
+--------------------------------------------------------------------------------
+
+2. TRẠNG THÁI HIỆN TẠI (git status):
+--------------------------------------------------------------------------------
+On branch main
+nothing to commit, working tree clean
+--------------------------------------------------------------------------------
+
+3. DANH SÁCH NHÁNH (git branch -a):
+--------------------------------------------------------------------------------
+  conflict-developer-a_102126
+  conflict-developer-b_102126
+  feature/add-student-info_102126
+  feature/result-statistics_102126
+  feature/student-management_102126
+  feature/subject-management_102126
+* main
+--------------------------------------------------------------------------------
+
+4. DANH SÁCH TAG (git tag -l -n):
+--------------------------------------------------------------------------------
+v1.0            First release v1.0 - 102126
+v2.0            Release v2.0 after conflict resolution and features - 102126
+--------------------------------------------------------------------------------
+
+5. ĐỒ THỊ LỊCH SỬ COMMIT TRỰC QUAN (git log --oneline --graph --decorate --all):
+--------------------------------------------------------------------------------
+* [commit-id] (HEAD -> main) Add practical lab report BAO_CAO_GIT_102126
+| * d0872a6 (feature/add-student-info_102126) Add student information 102126
+|/  
+* 5a64cc2 (tag: v2.0) Revert "Test commit for revert: add SV999"
+* ec392c4 Test commit for revert: add SV999
+*   a156a5c Resolve merge conflict in README_102126
+|\  
+| * d92ba26 (conflict-developer-b_102126) Update version by Developer B 102126
+* | e00c3d7 (conflict-developer-a_102126) Update version by Developer A 102126
+|/  
+*   776852f Merge branch 'feature/result-statistics_102126'
+|\  
+| * 1219d28 (feature/result-statistics_102126) Add result statistics feature 102126
+* |   c71f5c3 Merge branch 'feature/subject-management_102126'
+|\ \  
+| * | e488cfa (feature/subject-management_102126) Add subject management data 102126
+| |/  
+* / a698c0a (feature/student-management_102126) Add student management data 102126
+|/  
+* b30c975 (tag: v1.0) Initial commit: Create student management project 102126
+--------------------------------------------------------------------------------
+
+
+================================================================================
+PHẦN III: TRẢ LỜI CÁC CÂU HỎI LÝ THUYẾT VÀ BÀI TẬP THỰC HÀNH
+================================================================================
+
+Câu hỏi 1: Phân biệt Fast-forward Merge và 3-way Merge (Recursive/ort strategy)?
+- Fast-forward Merge: Xảy ra khi nhánh đích (target branch) không có commit nào mới
+  kể từ thời điểm nhánh tính năng (feature branch) được rẽ ra. Git chỉ đơn giản là
+  di chuyển con trỏ (pointer) của nhánh đích tiến thẳng tới commit mới nhất của nhánh
+  tính năng. Không có commit merge mới nào được tạo ra.
+  (Minh chứng: Lúc merge `feature/student-management_102126` vào `main`).
+- 3-way Merge: Xảy ra khi cả 2 nhánh cùng có những commit mới độc lập sau điểm rẽ
+  nhánh chung (common base commit). Git sẽ so sánh 3 commit: commit gốc chung, commit
+  đỉnh nhánh đích và commit đỉnh nhánh nguồn để tự động tạo ra một "Merge commit"
+  mới kết nối cả 2 dòng lịch sử.
+  (Minh chứng: Lúc merge `feature/subject-management_102126` và `result-statistics_102126`).
+
+Câu hỏi 2: Nguyên nhân phát sinh Merge Conflict và 4 bước giải quyết chuẩn?
+- Nguyên nhân: Merge Conflict xảy ra khi hai nhánh cùng thay đổi cùng một dòng (hoặc
+  các dòng liền kề) trong cùng một file văn bản, hoặc một bên sửa và một bên xóa file,
+  khiến Git không thể tự phán đoán phiên bản nào là đúng.
+- 4 bước giải quyết:
+  + Bước 1: Dùng `git status` để xác định danh sách file đang bị conflict (Unmerged paths).
+  + Bước 2: Mở file, định vị các thẻ đánh dấu (`<<<<<<< HEAD`, `=======`, `>>>>>>> <branch>`),
+    thảo luận với các thành viên trong nhóm để giữ lại đoạn mã chính xác và xóa bỏ các thẻ marker.
+  + Bước 3: Đánh dấu file đã xử lý xong xung đột bằng lệnh `git add <tên_file>`.
+  + Bước 4: Hoàn tất quá trình hợp nhất bằng lệnh `git commit -m "thông điệp giải quyết xung đột"`.
+
+Câu hỏi 3: Phân biệt 4 câu lệnh làm việc với Remote Repository (clone, fetch, pull, push)?
+- `git clone <url>`: Sao chép toàn bộ kho mã nguồn từ máy chủ từ xa về máy cục bộ,
+  tự động tạo thư mục dự án và thiết lập liên kết `origin`. Dùng khi bắt đầu tham gia dự án.
+- `git fetch`: Tải toàn bộ metadata, branch, commit mới nhất từ máy chủ từ xa về máy
+  cục bộ nhưng KHÔNG tự động hợp nhất vào mã nguồn đang làm việc (Working Tree an toàn).
+- `git pull`: Kết hợp giữa `git fetch` và `git merge`. Lệnh này vừa tải mã mới về vừa
+  ngay lập tức hợp nhất vào nhánh hiện tại đang làm việc.
+- `git push`: Đẩy các commit đã lưu trên nhánh cục bộ lên kho chứa từ xa (GitHub/GitLab)
+  để chia sẻ với cả nhóm.
+
+Câu hỏi 4: Phân biệt `git restore` và `git revert`? Khi nào nên dùng lệnh nào?
+- `git restore`: Dùng để khôi phục hoặc loại bỏ các thay đổi cục bộ chưa commit
+  (trong Working Directory hoặc Staging Area). Lệnh này có tính chất hủy dữ liệu chưa lưu
+  và KHÔNG tạo ra commit mới.
+- `git revert <commit-id>`: Dùng để đảo ngược tác động của một commit đã tồn tại trong
+  lịch sử bằng cách tạo ra một COMMIT MỚI mang nội dung đối nghịch.
+- Ứng dụng DevOps/Teamwork: Khi mã đã được push lên Remote chung của nhóm, tuyệt đối
+  không dùng `git reset` (gây viết lại lịch sử, hỏng repo của đồng nghiệp) mà bắt buộc
+  phải dùng `git revert` để bảo toàn tính toàn vẹn và minh bạch của lịch sử Git.
+
+
+================================================================================
+PHẦN IV: CÁC VỊ TRÍ CHỤP ẢNH MINH CHỨNG (DÁN VÀO FILE NỘP GIẢNG VIÊN)
+================================================================================
+
+[ DÁN ẢNH 1: Khởi tạo Repo, cấu hình git config, add/commit ban đầu và tag v1.0 ]
+- Vị trí terminal hiển thị: Lệnh `git init -b main`, `git commit -m "..."`, `git tag -a v1.0`
+
+[ DÁN ẢNH 2: Thực hiện phát triển 3 nhánh feature và kết quả Merge ]
+- Vị trí terminal hiển thị: Lệnh `git checkout -b feature/...`, chỉnh sửa file và 3 lượt `git merge`
+  (thấy rõ dòng chữ "Fast-forward" và "Merge made by the 'ort' strategy")
+
+[ DÁN ẢNH 3: Bằng chứng xảy ra xung đột (Conflict) và nội dung các thẻ đánh dấu ]
+- Vị trí terminal hiển thị: Dòng chữ đỏ "CONFLICT (content): Merge conflict in README_102126.md"
+  và lệnh `cat README_102126.md` với các ký hiệu `<<<<<<< HEAD` và `>>>>>>> conflict-developer-b_102126`
+
+[ DÁN ẢNH 4: Cây đồ thị Git trực quan hoàn chỉnh (git log --graph) ]
+- Vị trí terminal hiển thị: Toàn bộ cây phân nhánh và hợp nhất từ lệnh `git log --oneline --graph --all`
+
+[ DÁN ẢNH 5: Giao diện GitHub Repository cá nhân ]
+- Chụp màn hình trang chủ GitHub sau khi đã hoàn thành 3 lệnh push ở Phần V, hiển thị đủ tags và nhánh.
+
+
+================================================================================
+PHẦN V: 3 LỆNH ĐẨY DỰ ÁN LÊN GITHUB CỦA BẠN & TẠO PULL REQUEST
+================================================================================
+
+Bước 1: Đăng nhập https://github.com và tạo một Repository mới có tên:
+        StudentManagement_102126  (chọn Public, KHÔNG tích tạo README/gitignore/license)
+
+Bước 2: Chạy 3 lệnh sau trên Terminal Ubuntu WSL (thay <USERNAME> bằng tên GitHub của bạn):
+--------------------------------------------------------------------------------
+# Lệnh 1: Gắn địa chỉ Remote GitHub vào dự án
+git remote add origin https://github.com/<USERNAME>/StudentManagement_102126.git
+
+# Lệnh 2: Đẩy toàn bộ các nhánh đã làm việc lên GitHub
+git push -u origin --all
+
+# Lệnh 3: Đẩy toàn bộ các nhãn phiên bản (v1.0, v2.0) lên GitHub
+git push origin --tags
+--------------------------------------------------------------------------------
+
+Bước 3: Tạo Pull Request (Mô phỏng quy trình Review & Đóng góp nhóm):
+- Truy cập vào Repository trên GitHub: https://github.com/<USERNAME>/StudentManagement_102126
+- GitHub sẽ hiển thị nút màu vàng "Compare & pull request" cho nhánh `feature/add-student-info_102126`.
+- Bấm "Compare & pull request", nhập tiêu đề "Add Student Information 102126" và bấm "Create pull request".
+- Sau đó với vai trò Tech Lead / Reviewer, bấm "Merge pull request" -> "Confirm merge".
+- Nhánh tính năng thông tin sinh viên đã được merge thành công lên GitHub!
+================================================================================
