@@ -1,2 +1,2 @@
-# Student Management System - 102126
-Version: 1.0
+# Student Management System
+Version: 2.0 - Team Development (102126)
